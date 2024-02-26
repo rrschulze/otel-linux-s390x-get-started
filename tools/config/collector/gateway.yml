@@ -1,0 +1,35 @@
+# Learn more about the OpenTelemetry Collector via
+# https://opentelemetry.io/docs/collector/
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+processors:
+  batch:
+exporters:
+  otlp/1:
+    endpoint: vsi-s390x-01:24317
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+  loki:
+    endpoint: http://vsi-s390x-01:3100/loki/api/v1/push
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]      
+      exporters: [otlp/1]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [batch]      
+      exporters: [loki]
