@@ -1,6 +1,8 @@
 # Learn more about the OpenTelemetry Collector via
 # https://opentelemetry.io/docs/collector/
 
+# Gateway configuration for demonstratrating the collector on linux/s390x.
+
 receivers:
   otlp:
     protocols:
