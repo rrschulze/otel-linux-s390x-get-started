@@ -15,6 +15,11 @@ exporters:
     endpoint: vsi-s390x-01:24317
     tls:
       insecure: true
+  otlp/2:
+    endpoint: otlp-green-saas.instana.io:4317
+    headers:
+      x-instana-key: xxxxxxx
+      x-instana-host: vsi-s390x-01
   prometheus:
     endpoint: 0.0.0.0:8889
     resource_to_telemetry_conversion:
@@ -26,12 +31,12 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]      
-      exporters: [otlp/1]
+      exporters: [otlp/1,otlp/2]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [prometheus]
+      exporters: [prometheus,otlp/2]
     logs:
       receivers: [otlp]
       processors: [batch]      
-      exporters: [loki]
+      exporters: [loki,otlp/2]
