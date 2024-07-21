@@ -66,19 +66,6 @@ services:
       - ./config/collector/gateway.yml:/etc/otelcol-contrib/config.yaml
     networks:
       - nw-lab001
-  collector-agent-service:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: collector-agent
-    depends_on:
-      - collector-gateway-service
-    ports: 
-      - 4317:4317
-      - 4318:4318
-    volumes:
-      - ./config/collector/agent.yml:/etc/otelcol-contrib/config.yaml
-      - /tmp/metrics.json: /tmp/metrics.json
-    networks:
-      - nw-lab001
 networks:
   nw-lab001:
 
