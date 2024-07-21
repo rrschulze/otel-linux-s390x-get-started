@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   jaeger-service:
     image: jaegertracing/all-in-one:latest
@@ -77,6 +76,7 @@ services:
       - 4318:4318
     volumes:
       - ./config/collector/agent.yml:/etc/otelcol-contrib/config.yaml
+      - /tmp/metrics.json: /tmp/metrics.json
     networks:
       - nw-lab001
 networks:

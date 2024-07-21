@@ -17,6 +17,7 @@ receivers:
       process:
       processes:
       paging:
+    root_path: /hostfs
 processors:
   transform:
     error_mode: ignore
@@ -26,9 +27,11 @@ processors:
         - replace_match(attributes["service.name"], "unknown_service", "cpp_service")
 exporters:
   otlp:
-    endpoint: vsi-s390x-01:14317
+    endpoint: vsi-s390x-01:24317
     tls:
       insecure: true
+  file:
+    path: /tmp/metrics.json
 service:
   pipelines:
     traces:
@@ -37,7 +40,7 @@ service:
       exporters: [otlp]
     metrics:
       receivers: [hostmetrics, otlp]
-      exporters: [otlp]
+      exporters: [otlp,file]
     logs:
       receivers: [otlp]
       exporters: [otlp]
