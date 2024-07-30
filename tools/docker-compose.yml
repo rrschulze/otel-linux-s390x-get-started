@@ -46,8 +46,8 @@ services:
     ports:
       - 3100:3100
     volumes:
-      - ./config/loki/config.yaml:/etc/loki/config.yaml    
-    command: 
+      - ./config/loki/config.yaml:/etc/loki/config.yaml
+    command:
       -config.file=/etc/loki/config.yaml
     networks:
       - nw-lab001
@@ -58,8 +58,8 @@ services:
       - jaeger-service
       - prometheus-service
       - loki-service
-    ports: 
-      - 14317:4317
+    ports:
+      - 4317:4317
       - 8888:8888 # Prometheus metrics exposed by the Collector
       - 8889:8889 # Prometheus exporter
     volumes:
@@ -68,4 +68,3 @@ services:
       - nw-lab001
 networks:
   nw-lab001:
-

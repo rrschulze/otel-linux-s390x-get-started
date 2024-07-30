@@ -6,13 +6,15 @@
 receivers:
   otlp:
     protocols:
-      grpc:
-      http:
+      grpc: 
+        endpoint: "localhost:4317"
+      http: 
+        endpoint: "localhost:4318"
 processors:
   batch:
 exporters:
   otlp:
-    endpoint: vsi-s390x-01:24317
+    endpoint: backend-s390x-01:24317
     tls:
       insecure: true
   prometheus:
@@ -20,12 +22,12 @@ exporters:
     resource_to_telemetry_conversion:
       enabled: true
   loki:
-    endpoint: http://vsi-s390x-01:3100/loki/api/v1/push
+    endpoint: http://backend-s390x-01:3100/loki/api/v1/push
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]      
+      processors: [batch]
       exporters: [otlp]
     metrics:
       receivers: [otlp]
@@ -33,5 +35,5 @@ service:
       exporters: [prometheus]
     logs:
       receivers: [otlp]
-      processors: [batch]      
+      processors: [batch]
       exporters: [loki]

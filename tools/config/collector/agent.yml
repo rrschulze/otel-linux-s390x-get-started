@@ -15,31 +15,86 @@ receivers:
       memory:
       network:
       process:
+        mute_process_exe_error: true
+        mute_process_io_error: true
       processes:
       paging:
+  filelog:
+    include:
+      - /var/log/syslog
+    include_file_name: false
+    include_file_path_resolved: true
 processors:
-  transform:
-    error_mode: ignore
+  transform/trace:
     trace_statements:
       - context: resource
         statements:
         - replace_match(attributes["service.name"], "unknown_service", "cpp_service")
+  resourcedetection/system:
+    detectors: ["system"]
+    system:
+      hostname_sources: ["os"]
+      resource_attributes: 
+        host.arch:
+          enabled: true
+        host.id:
+          enabled: true
+        host.ip:
+          enabled: true
+        host.mac:
+          enabled: true
+        host.cpu.vendor.id:
+          enabled: true
+        host.cpu.family:
+          enabled: true
+        host.cpu.model.id:
+          enabled: true
+        host.cpu.model.name:
+          enabled: true
+        host.cpu.stepping:
+          enabled: true
+        host.cpu.cache.l2.size:
+          enabled: true
+        os.description:
+          enabled: true
+  transform/metrics:
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(attributes["host.arch"], resource.attributes["host.arch"])
+          - set(attributes["host.name"], resource.attributes["host.name"])
+          - set(attributes["host.id"], resource.attributes["host.id"])
+          - set(attributes["host.ip"], resource.attributes["host.ip"])
+          - set(attributes["host.mac"], resource.attributes["host.mac"])
+          - set(attributes["host.cpu.vendor.id"], resource.attributes["host.cpu.vendor.id"])
+          - set(attributes["host.cpu.family"], resource.attributes["host.cpu.family"])
+          - set(attributes["host.cpu.model.id"], resource.attributes["host.cpu.model.id"])
+          - set(attributes["host.cpu.model.name"], resource.attributes["host.cpu.model.name"])
+          - set(attributes["host.cpu.stepping"], resource.attributes["host.cpu.stepping"])
+          - set(attributes["host.cpu.cache.l2.size"], resource.attributes["host.cpu.cache.l2.size"])
+          - set(attributes["os.description"], resource.attributes["os.description"])  
 exporters:
   otlp:
-    endpoint: 10.241.0.5:24317
+    endpoint: 10.241.0.7:4317
     tls:
       insecure: true
-  file:
+  file/traces:
+    path: ./traces.json
+  file/metrics:
     path: ./metrics.json
+  file/logs:
+    path: ./logs.json
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [transform]
-      exporters: [otlp]
+      processors: [transform/trace]
+      exporters: [file/traces]
     metrics:
       receivers: [hostmetrics, otlp]
-      exporters: [otlp,file]
+      processors: [resourcedetection/system,transform/metrics]
+      exporters: [file/metrics]
     logs:
-      receivers: [otlp]
-      exporters: [otlp]
+      receivers: [filelog,otlp]
+      processors: [resourcedetection/system]
+      exporters: [file/logs]
